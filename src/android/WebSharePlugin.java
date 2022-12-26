@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.ComponentName;
 import android.content.IntentFilter;
 import android.os.Build;
+import android.net.Uri;
 
 import by.chemerisuk.cordova.support.CordovaMethod;
 import by.chemerisuk.cordova.support.ReflectiveCordovaPlugin;
@@ -60,6 +61,7 @@ public class WebSharePlugin extends ReflectiveCordovaPlugin {
         String title = options.optString("title");
         String url = options.optString("url");
         Boolean stream = options.optString("stream");
+        URI uri = null;
         if (!url.isEmpty()) {
             text = text.isEmpty() ? url : text + "\n" + url;
         }
@@ -71,7 +73,8 @@ public class WebSharePlugin extends ReflectiveCordovaPlugin {
          sendIntent.putExtra(Intent.EXTRA_TEXT, text);
         }
         else{
-         sendIntent.putExtra(Intent.EXTRA_STREAM, url);
+         uri = new URI(url);
+         sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
          sendIntent.setType("image/jpeg");
         }
 
@@ -80,10 +83,10 @@ public class WebSharePlugin extends ReflectiveCordovaPlugin {
         }
         
         if (chosenComponentPI != null) {
-            sendIntent = Intent.createChooser(sendIntent, title, chosenComponentPI.getIntentSender());
+            sendIntent = Intent.createChooser(sendIntent, stream ? uri : title, chosenComponentPI.getIntentSender());
             lastChosenComponent = null;
         } else {
-            sendIntent = Intent.createChooser(sendIntent, title);
+            sendIntent = Intent.createChooser(sendIntent, stream ? uri : title);
         }
 
         cordova.startActivityForResult(this, sendIntent, SHARE_REQUEST_CODE);
