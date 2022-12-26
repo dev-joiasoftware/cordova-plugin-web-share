@@ -10,7 +10,8 @@ import android.content.ComponentName;
 import android.content.IntentFilter;
 import android.os.Build;
 
-import java.net.*;
+import android.net.*;
+import android.util.Log;
 
 import by.chemerisuk.cordova.support.CordovaMethod;
 import by.chemerisuk.cordova.support.ReflectiveCordovaPlugin;
@@ -57,31 +58,27 @@ public class WebSharePlugin extends ReflectiveCordovaPlugin {
     @SuppressLint("NewApi")
     @CordovaMethod
     protected void share(CordovaArgs args, CallbackContext callbackContext) throws JSONException {
+        String TAG = "WebShare";
         JSONObject options = args.getJSONObject(0);
         String text = options.optString("text");
         String title = options.optString("title");
         String url = options.optString("url");
         Boolean stream = options.optBoolean("stream");
-        URI uri = null;
+
         if (!url.isEmpty() && stream) {
             text = text.isEmpty() ? url : text + "\n" + url;
         }
 
         Intent sendIntent = new Intent(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, text);
 
         if(!stream){
          sendIntent.setType("text/plain");
-         sendIntent.putExtra(Intent.EXTRA_TEXT, text);
         }
         else{
-        try {
-            uri = new URI(url);
-        }
-        catch (URISyntaxException e) {
-         LOG.e("WebShare", "Exception", e);
-        }
-         sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
-         sendIntent.setType("image/jpeg");
+         sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(url));
+         sendIntent.setType("image/*");
+         sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
 
         if (!title.isEmpty()) {
