@@ -59,17 +59,26 @@ public class WebSharePlugin extends ReflectiveCordovaPlugin {
         String text = options.optString("text");
         String title = options.optString("title");
         String url = options.optString("url");
+        Boolean stream = options.optString("stream");
         if (!url.isEmpty()) {
             text = text.isEmpty() ? url : text + "\n" + url;
         }
 
         Intent sendIntent = new Intent(Intent.ACTION_SEND);
-        sendIntent.setType("text/plain");
-        sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+
+        if(!stream){
+         sendIntent.setType("text/plain");
+         sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+        }
+        else{
+         sendIntent.putExtra(Intent.EXTRA_STREAM, url);
+         sendIntent.setType("image/jpeg");
+        }
+
         if (!title.isEmpty()) {
             sendIntent.putExtra(Intent.EXTRA_SUBJECT, title);
         }
-
+        
         if (chosenComponentPI != null) {
             sendIntent = Intent.createChooser(sendIntent, title, chosenComponentPI.getIntentSender());
             lastChosenComponent = null;
