@@ -78,7 +78,6 @@ public class WebSharePlugin extends ReflectiveCordovaPlugin {
         else{
          sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(url));
          sendIntent.setType("image/*");
-         sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
 
         if (!title.isEmpty()) {
